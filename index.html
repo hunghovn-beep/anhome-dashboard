@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnHome · Mô phỏng đầu tư dự án (v5)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1B2A; --slate:#5A6B7B; --paper:#EEF2F6; --card:#FFFFFF;
+  --line:#DCE3EB; --line2:#EBF0F5;
+  --green:#0F7C5A; --green-soft:#E5F3ED; --amber:#B7791F; --amber-soft:#FBF1DD;
+  --red:#C0392B; --red-soft:#FBE9E7; --blue:#2563EB; --blue-soft:#E8F0FE;
+  --ink-2:#1B3A57;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;padding:18px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+header{margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:23px;letter-spacing:-0.4px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.title .dot{color:var(--green)}
+.ptitle{outline:none;border-bottom:1px dashed transparent;padding:0 2px;cursor:text;transition:.15s;min-width:40px}
+.ptitle:hover{border-bottom-color:var(--line)}
+.ptitle:focus{border-bottom-color:var(--blue);background:var(--blue-soft)}
+.pencil{font-size:11px;color:var(--slate);font-weight:500;font-family:'Inter'}
+.title .v{font-size:12px;font-weight:600;color:#fff;background:var(--ink-2);padding:2px 8px;border-radius:6px}
+.sub{color:var(--slate);font-size:12.5px;margin-top:3px;max-width:680px}
+.hbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+#reset,#print,#save,#open{font-family:'Inter';font-size:12px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--line);padding:8px 13px;border-radius:9px;cursor:pointer;transition:.15s}
+#reset:hover,#print:hover,#save:hover,#open:hover{background:var(--blue-soft);border-color:var(--blue)}
+#reset:focus-visible,#print:focus-visible,#save:focus-visible,#open:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+details.intro,details.params{background:var(--card);border:1px solid var(--line);border-radius:13px;margin-bottom:14px;overflow:hidden}
+details summary{cursor:pointer;list-style:none;padding:13px 16px;font-family:'Space Grotesk';font-weight:600;font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:8px;user-select:none}
+details summary::-webkit-details-marker{display:none}
+details.intro summary::before{content:"ⓘ";color:var(--blue);font-size:15px}
+details.params summary::before{content:"∑";color:var(--green);font-size:16px;font-weight:700}
+details summary::after{content:"▸";margin-left:auto;color:var(--slate);transition:.2s}
+details[open] summary::after{transform:rotate(90deg)}
+.introbody{padding:2px 17px 16px;font-size:12.5px;color:#3A4A5A;line-height:1.62}
+.introbody p{margin-bottom:9px}.introbody b{color:var(--ink-2)}
+.introbody .lbl{display:inline-block;min-width:118px;font-weight:600;color:var(--ink-2)}
+.pbody{padding:2px 16px 14px;font-size:12px;color:#3A4A5A;line-height:1.55}
+.pbody h4{font-family:'Space Grotesk';font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-2);margin:12px 0 6px}
+.ptable{width:100%;border-collapse:collapse;font-size:11.5px}
+.ptable td{padding:4px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+.ptable td:first-child{color:var(--ink-2);font-weight:500;width:46%}
+.ptable td:last-child{font-family:'IBM Plex Mono';color:#3A4A5A}
+.pnote{background:var(--paper);border-radius:9px;padding:10px 12px;margin-top:10px;font-size:11.5px;line-height:1.55}
+.pnote b{color:var(--ink-2)}
+.pnote code{font-family:'IBM Plex Mono';background:#fff;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:11px}
+
+.grid{display:grid;grid-template-columns:392px 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 8px}
+.panel h2{font-family:'Space Grotesk';font-size:11px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:var(--slate);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.panel h2::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}
+
+.gblock{margin-bottom:6px}
+.gh{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink-2);margin:14px 0 2px}
+.gnote{font-size:11px;color:var(--slate);line-height:1.45;margin-bottom:11px}
+.gblock:first-of-type .gh{margin-top:2px}
+
+.sgroup{margin-bottom:13px}
+.sgroup.locked{opacity:.72}
+.slabel{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.slabel .nm{font-size:12.5px;font-weight:500}
+.slabel .tag{font-size:9.5px;font-weight:700;color:#fff;background:var(--ink-2);border-radius:5px;padding:1px 5px;margin-left:5px;letter-spacing:.3px}
+.slabel .vl{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;color:var(--ink-2)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:6px;background:var(--line);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:17px;height:17px;border-radius:50%;background:#fff;border:2.5px solid var(--blue);cursor:pointer;box-shadow:0 1px 4px rgba(20,40,80,.25);transition:.1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2.5px solid var(--blue);cursor:pointer}
+input[type=range]:disabled{opacity:.6;cursor:not-allowed}
+input[type=range]:disabled::-webkit-slider-thumb{border-color:var(--ink-2);background:#E2E8F0;cursor:not-allowed}
+input[type=range]:focus-visible::-webkit-slider-thumb{outline:2px solid var(--blue);outline-offset:2px}
+.ticks{display:flex;justify-content:space-between;font-size:9.5px;color:var(--slate);margin-top:2px;font-family:'IBM Plex Mono'}
+.divider{height:1px;background:var(--line2);margin:6px -16px 2px}
+.autoline{font-size:10.5px;color:var(--slate);background:var(--paper);border-radius:8px;padding:7px 10px;margin-bottom:11px}
+.autoline b{color:var(--ink-2);font-family:'IBM Plex Mono'}
+
+.toggle{display:flex;align-items:center;justify-content:space-between;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0 6px}
+.toggle .tt{font-size:12px;font-weight:500;max-width:250px}
+.tw{position:relative;width:42px;height:23px;flex:0 0 auto}
+.tw input{opacity:0;width:0;height:0}
+.tw .tk{position:absolute;inset:0;background:#C3CDD8;border-radius:23px;transition:.2s;cursor:pointer}
+.tw .tk::before{content:"";position:absolute;height:17px;width:17px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tw input:checked + .tk{background:var(--ink-2)}
+.tw input:checked + .tk::before{transform:translateX(19px)}
+.tw input:focus-visible + .tk{outline:2px solid var(--blue);outline-offset:2px}
+
+.hero{background:linear-gradient(150deg,#0E1B2A,#163150);border-radius:14px;padding:20px 22px;color:#fff;position:relative;overflow:hidden}
+.hero .lbl{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:#9FB4C8}
+.hero .big{font-family:'IBM Plex Mono';font-weight:600;font-size:60px;line-height:1;margin:6px 0 2px;letter-spacing:-1px}
+.hero .cap{font-size:12px;color:#AFC2D4}
+.hero .ref{position:absolute;right:20px;top:20px;text-align:right}
+.hero .ref .rl{font-size:9.5px;letter-spacing:.8px;text-transform:uppercase;color:#8AA0B6}
+.hero .ref .rv{font-family:'IBM Plex Mono';font-size:20px;font-weight:600;color:#DCE7F1}
+
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:520px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+.kpi .k{font-size:10.5px;color:var(--slate);font-weight:500}
+.kpi .v{font-family:'IBM Plex Mono';font-size:23px;font-weight:600;margin-top:3px}
+.kpi .u{font-size:11px;color:var(--slate);font-weight:500}
+
+.chip{display:flex;align-items:center;gap:10px;border-radius:11px;padding:11px 14px;margin-top:12px;font-size:12.5px;font-weight:500;border:1px solid}
+.chip.ok{background:var(--green-soft);border-color:#BfE3D4;color:#0B5E44}
+.chip.bad{background:var(--red-soft);border-color:#F3C9C2;color:#9A2A1C}
+.chip .badge{font-family:'IBM Plex Mono';font-weight:700;font-size:13px;padding:2px 8px;border-radius:6px;flex:0 0 auto}
+.chip.ok .badge{background:#0F7C5A;color:#fff}.chip.bad .badge{background:#C0392B;color:#fff}
+
+.live{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-top:12px}
+.live .hdr{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.live .t1{font-family:'Space Grotesk';font-size:13px;font-weight:600;color:var(--ink-2)}
+.live .note{font-size:10.5px;color:var(--slate);margin:3px 0 11px;line-height:1.45}
+.live .irow{display:flex;justify-content:space-between;align-items:baseline}
+.live .ilab{font-size:11.5px;color:var(--slate)}
+.live .ival{font-family:'IBM Plex Mono';font-size:18px;font-weight:600}
+.live .status{font-size:11.5px;font-weight:600;margin-top:5px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line2)}
+@media(max-width:520px){.cgrid{grid-template-columns:1fr}}
+.cgrid .ci{display:flex;align-items:center;gap:6px;font-size:11.5px}
+.cgrid .ci .mk{font-family:'IBM Plex Mono';font-weight:700;flex:0 0 auto}
+.cgrid .ci.y .mk{color:var(--green)}.cgrid .ci.n .mk{color:var(--amber)}
+.cgrid .ci .cn{color:#3A4A5A}
+.cgrid .ci .cp{margin-left:auto;font-family:'IBM Plex Mono';font-size:10px;color:var(--slate)}
+.clegend{font-size:10.5px;color:var(--slate);margin-top:8px}
+
+.chartcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px}
+.chartcard h3{font-family:'Space Grotesk';font-size:11px;font-weight:600;letter-spacing:1.1px;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.chartcard .hint{font-size:11px;color:var(--slate);margin-bottom:8px}
+svg{display:block;width:100%;height:auto}
+.leg{display:flex;flex-wrap:wrap;gap:5px 13px;margin-top:9px;font-size:10.5px;color:#3A4A5A}
+.leg span{display:inline-flex;align-items:center;gap:5px}
+.leg i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+.bd{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-top:12px}
+.bdh{font-family:'Space Grotesk';font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:9px}
+.bdnote{font-weight:500;font-size:10.5px;color:var(--slate)}
+.bdt{width:100%;border-collapse:collapse;font-size:11.5px}
+.bdt th{font-size:10px;font-weight:600;color:var(--slate);text-align:right;padding:3px 6px;border-bottom:1px solid var(--line)}
+.bdt th:first-child{text-align:left}
+.bdt td{text-align:right;padding:5px 6px;font-family:'IBM Plex Mono';font-weight:600;color:var(--ink);border-bottom:1px solid var(--line2)}
+.bdt td.lab{text-align:left;font-family:'Inter';font-weight:500;color:var(--ink-2)}
+.bdt td.m{color:var(--green)}
+.bdcap{font-size:9px;font-weight:700;color:#fff;background:var(--ink-2);border-radius:4px;padding:1px 4px;margin-left:3px}
+.bdsub{font-size:9.5px;font-weight:500;color:var(--slate);margin-left:3px}
+.bdfoot{font-size:10.5px;color:#3A4A5A;line-height:1.5;margin-top:9px;background:var(--paper);border-radius:8px;padding:8px 10px}
+.bdfoot b{color:var(--ink-2)}
+
+.cftwrap{overflow-x:auto;margin-top:12px;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line2);padding-top:10px}
+.cft{border-collapse:collapse;font-size:11px;min-width:520px;width:100%}
+.cft th{font-family:'IBM Plex Mono';font-size:10px;font-weight:600;color:var(--slate);text-align:right;padding:4px 7px;border-bottom:1.5px solid var(--line);position:sticky;left:0}
+.cft th:first-child{text-align:left}
+.cft td{text-align:right;padding:3px 7px;font-family:'IBM Plex Mono';color:#3A4A5A;white-space:nowrap}
+.cft td:first-child{text-align:left;font-family:'Inter';color:var(--ink-2);font-weight:500}
+.cft td.tot{font-weight:700;color:var(--ink);border-left:1px solid var(--line2)}
+.cft tr.sec td{font-family:'Space Grotesk';font-weight:700;font-size:9.5px;letter-spacing:.6px;padding-top:8px;color:#fff}
+.cft tr.sec.in td{background:var(--green);border-radius:4px}
+.cft tr.sec.out td{background:var(--red);border-radius:4px}
+.cft tr.subt td{font-weight:700;color:var(--ink);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cft tr.subt td:first-child{color:var(--ink)}
+.cft tr.netr td{font-weight:700;color:#0E1B2A;border-top:1.5px solid var(--ink-2);background:#F4F7FA}
+.cft tr.netr td:first-child{color:var(--ink-2)}
+.cft tr.cumr td{color:var(--slate);font-style:italic}
+
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px}
+@media(max-width:520px){.strip{grid-template-columns:repeat(2,1fr)}}
+.strip .s{background:#fff;padding:11px 13px}
+.strip .s .k{font-size:10px;color:var(--slate);font-weight:500}
+.strip .s .v{font-family:'IBM Plex Mono';font-size:16px;font-weight:600;margin-top:2px}
+
+.glossary{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 6px;margin-top:16px}
+.glossary summary::before{content:"📖"}
+.gbody{padding:4px 14px 12px;font-size:12px;color:#3A4A5A;line-height:1.6}
+.gbody dt{font-weight:600;color:var(--ink-2);margin-top:8px}
+.gbody dd{margin:1px 0 0}
+
+footer{margin-top:16px;font-size:11px;color:var(--slate);line-height:1.6;border-top:1px solid var(--line);padding-top:12px}
+footer b{color:var(--ink-2)}
+.flash{animation:fl .5s ease}
+@keyframes fl{0%{background:var(--blue-soft)}100%{background:transparent}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+@media print{
+  body{padding:0;background:#fff;font-size:11px}
+  .hbtns,.pencil{display:none}
+  .ptitle{border:none}
+  .grid{grid-template-columns:1fr;gap:10px}
+  .panel,.chartcard,.live,.strip,.hero,.kpis,details{break-inside:avoid;box-shadow:none}
+  details summary::after{display:none}
+  input[type=range]{display:none}
+  .slabel{border-bottom:1px dotted var(--line);padding-bottom:2px}
+  .ticks{display:none}
+  header{border-bottom:2px solid var(--ink-2);padding-bottom:8px}
+}
+
+[data-lang]{display:contents}
+body[data-l="vi"] [data-lang="en"], body[data-l="en"] [data-lang="vi"]{display:none!important}
+#lang{flex:0 0 auto;white-space:nowrap;min-width:62px;text-align:center;font-family:'Inter';font-size:12px;font-weight:600;color:#fff;background:var(--ink-2);border:1px solid var(--ink-2);padding:8px 13px;border-radius:9px;cursor:pointer;transition:.15s}
+#lang:hover{background:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="title">AnHome <span class="dot">·</span> <span class="ptitle" id="ptitle" contenteditable="true" spellcheck="false">Mô phỏng đầu tư dự án</span> <span class="v">v5</span> <span class="pencil" data-t="pencil">✎ bấm để đổi tên</span></div>
+    <div class="sub" data-t="sub">Kéo thanh trượt để thấy ngay <b>IRR vốn chủ (có vay)</b>. Người mới đọc "Giới thiệu" và "Tham số dùng trong tính toán". In ra để họp bằng nút In. Đơn vị tiền: tỷ VND.</div>
+  </div>
+  <div class="hbtns">
+    <button id="lang">🌐 EN</button>
+    <button id="print" data-t="print">⎙ In</button>
+    <button id="reset" data-t="reset">↺ Mặc định</button>
+    <button id="save" data-t="save">⤓ Lưu</button>
+    <button id="open" data-t="open">⤒ Mở</button>
+    <input type="file" id="openFile" accept="application/json,.json" style="display:none">
+  </div>
+</header>
+
+<details class="intro">
+  <summary data-t="introsum">Giới thiệu &amp; cách đọc mô hình (đọc nếu chưa quen dự án)</summary>
+  <div class="introbody" data-lang="vi">
+    <p><b>Đây là gì.</b> Công cụ mô phỏng tài chính cho MỘT dự án affordable housing tại Việt Nam: phần nhà ở xã hội (NOXH) cộng một parcel thương mại tối đa 20% quỹ đất. Biên bán NOXH bị Nhà nước chặn ~10%, nên lợi nhuận đến từ phần thương mại, đỗ xe ô tô có thu phí, và đòn bẩy hợp lý. Màn hình tính <b>IRR vốn chủ</b> ngay khi anh kéo một thanh trượt.</p>
+    <p><b>Parcel thương mại chia hai phần:</b> (a) nhà ở thương mại <b>bán</b> giá thị trường, thu một lần; (b) dịch vụ/retail <b>cho thuê dài hạn</b>, dòng tiền đều. Tỷ lệ a/b là thanh trượt.</p>
+    <p><b>Đỗ xe:</b> NOXH chỉ cần ~1 tầng để xe máy (theo QCVN, miễn phí, không tạo doanh thu). Khối thương mại để ô tô theo chuẩn Singapore, có thu <b>phí gửi theo tháng</b> tạo dòng đều.</p>
+    <p><b>Tiến độ giả định (kịch bản "Khả thi", xây tối đa 2 năm):</b><br>
+      <span class="lbl">Pháp lý + thiết kế:</span> Năm 0.<br>
+      <span class="lbl">Mua đất:</span> Năm 0. Tiền sử dụng đất phần (a): Năm 2.<br>
+      <span class="lbl">Xây dựng:</span> NOXH 70% Năm 1, 30% Năm 2; thương mại 100% Năm 2. Hạ tầng 100% Năm 1.<br>
+      <span class="lbl">Bán NOXH:</span> ký HĐ Năm 1 và Năm 2 (50:50).<br>
+      <span class="lbl">Bán nhà ở TM:</span> ký HĐ Năm 2 và Năm 3 (lùi 1 năm so với NOXH), 50:50.<br>
+      <span class="lbl">Thu tiền bán:</span> trả góp theo tiến độ — đặt cọc + theo xây (mặc định ~60% trước bàn giao), phần còn lại khi bàn giao + sổ. Đổi bằng thanh trượt "% thu trước bàn giao".<br>
+      <span class="lbl">NOI cho thuê + đỗ xe:</span> 50% Năm 3, 100% từ Năm 4.<br>
+      <span class="lbl">Vốn hoá:</span> khối cho thuê đưa lên REIT/IPO cuối Năm 5.</p>
+    <p><b>Vay &amp; lãi.</b> Vay theo % chi phí xây và % giá đất; lãi <b>vốn hoá</b> trong lúc xây; bán hàng <b>quét trả nợ trước</b>, nhóm lãi cao trả trước. Khối cho thuê giữ dài hạn, giá trị cuối kỳ là vốn hoá khi đưa lên REIT/IPO, không bán đứt. Mọi số là working model, không phải kết luận đầu tư.</p>
+  </div>
+  <div class="introbody" data-lang="en">
+    <p><b>What this is.</b> A financial simulator for ONE affordable housing project in Vietnam: the affordable-housing portion plus a commercial parcel of up to 20% of the land. The State caps the AH sale margin at ~10%, so profit comes from the commercial portion, paid car parking, and sensible leverage. The screen computes the <b>equity IRR</b> the moment you move a slider.</p>
+    <p><b>The commercial parcel has two parts:</b> (a) commercial housing <b>sold</b> at market price, one-off cash; (b) services/retail <b>leased long term</b>, recurring income. The a/b split is a slider.</p>
+    <p><b>Parking:</b> AH needs only ~1 floor for motorbikes (per QCVN, free, no revenue). The commercial block parks cars per the Singapore standard, charging a <b>monthly fee</b> for recurring income.</p>
+    <p><b>Assumed schedule (Base case, build over 2 years max):</b><br>
+      <span class="lbl">Legal + design:</span> Year 0.<br>
+      <span class="lbl">Land purchase:</span> Year 0. Land-use fee for part (a): Year 2.<br>
+      <span class="lbl">Construction:</span> AH 70% Year 1, 30% Year 2; commercial 100% Year 2. Infrastructure 100% Year 1.<br>
+      <span class="lbl">AH sales:</span> contracts in Years 1 and 2 (50:50).<br>
+      <span class="lbl">Commercial sales:</span> contracts in Years 2 and 3 (one year behind AH), 50:50.<br>
+      <span class="lbl">Sales collection:</span> installments by progress — deposit + construction-linked (~60% before handover by default), the rest at handover + certificate. Adjust with the "% collected before handover" slider.<br>
+      <span class="lbl">Lease + parking NOI:</span> 50% Year 3, 100% from Year 4.<br>
+      <span class="lbl">Crystallization:</span> the leased block is contributed to a REIT/IPO at the end of Year 5.</p>
+    <p><b>Debt &amp; interest.</b> Loans sized as a % of construction cost and a % of land value; interest is <b>capitalized</b> during construction; sales cash <b>sweeps to repay debt first</b>, highest-rate tranche first. The leased block is held long term; its end-of-period value is the crystallization at REIT/IPO, not an outright sale. All figures are a working model, not investment advice.</p>
+  </div>
+</details>
+
+<details class="params">
+  <summary data-t="paramsum">Tham số dùng trong tính toán (mở để kiểm tra mọi giả định)</summary>
+  <div class="pbody" data-lang="vi">
+    <p>Đầu ra chỉ đúng nếu giả định ẩn đúng. Nhóm điều chỉnh được nằm ở thanh trượt bên trái; nhóm cố định liệt kê dưới đây.</p>
+    <h4>Hằng số cố định</h4>
+    <table class="ptable"><tbody>
+      <tr><td>Mật độ xây (plot ratio)</td><td>40%</td></tr>
+      <tr><td>NOXH: cấu trúc 12 tầng</td><td>tầng 1 thông + tầng 2 podium xe máy + tầng 3–12 (10 tầng) căn hộ</td></tr>
+      <tr><td>NOXH: số tầng đế (thông + podium)</td><td>2 tầng × diện tích sàn, xây suất podium 6 tr/m²</td></tr>
+      <tr><td>Thương mại: số tầng quy đổi</td><td>9 (đã gồm phạt không tầng hầm; đỗ ô tô trừ ra trước)</td></tr>
+      <tr><td>Hiệu suất sàn (net / GFA)</td><td>70%</td></tr>
+      <tr><td>Diện tích căn nhà ở TM (net)</td><td>60 m²</td></tr>
+      <tr><td>Đỗ xe máy NOXH (QCVN, 60% NOXH)</td><td>max(12% × DT net NOXH; 6 m²/căn) — tự tính, miễn phí</td></tr>
+      <tr><td>Diện tích 1 chỗ ô tô</td><td>25 m² (kể cả lối đi)</td></tr>
+      <tr><td>Dịch vụ bắt buộc tầng trệt</td><td>1,5 m²/căn (nhà trẻ + SHCĐ + trạm y tế)</td></tr>
+      <tr><td>Suất xây podium / dịch vụ</td><td>6 tr/m²</td></tr>
+      <tr><td>Suất xây khối cho thuê</td><td>10 tr/m²</td></tr>
+      <tr><td>Chi phí hạ tầng</td><td>1,5 tr/m² đất</td></tr>
+      <tr><td>Thiết kế + pháp lý</td><td>1,0 tr/m² đất (Năm 0)</td></tr>
+      <tr><td>Dự phòng</td><td>8% chi phí cứng (theo tiến độ xây)</td></tr>
+      <tr><td>Chi phí bán hàng</td><td>2% doanh thu bán</td></tr>
+      <tr><td>Vận hành (thuê + đỗ xe)</td><td>25% doanh thu hiệu dụng</td></tr>
+      <tr><td>Chiết khấu NPV</td><td>12%/năm</td></tr>
+      <tr><td>Năm vốn hoá (REIT/IPO)</td><td>Năm 5</td></tr>
+    </tbody></table>
+    <div class="pnote">
+      <b>Thu tiền bán theo tiến độ (trả góp).</b> Tiền bán KHÔNG về một lần lúc ký HĐ mà thu dần theo Luật Kinh doanh BĐS: đặt cọc + theo tiến độ xây (tổng <b>≈ "% thu trước bàn giao"</b>, mặc định 60%, tối đa ~70%), phần còn lại chia khi <b>bàn giao</b> (~75% phần dư) và khi ra <b>sổ</b> (~25% phần dư). Đây là biến quan trọng: thu càng sớm thì vốn chủ bỏ ra càng ít và IRR càng cao. Tiền bán NOXH bắt đầu từ Năm 1, nhà ở TM lùi 1 năm.
+    </div>
+    <div class="pnote">
+      <b>Đỗ xe (mới).</b> NOXH dùng định mức QCVN 04:2021 cho NOXH (60% định mức thường, tối thiểu 6 m²/căn xe máy) → podium ~1 tầng riêng, <b>không thu tiền</b>. Khối thương mại theo chuẩn Singapore (RPPS ~0,5–0,8 chỗ ô tô/căn): <b>diện tích đỗ ô tô được TRỪ KHỎI GFA khối thương mại trước</b>, phần còn lại mới chia bán (a) và cho thuê (b); ô tô <b>thu phí gửi theo tháng</b> (dòng đều, cộng vào NOI, vốn hoá khi thoái). Tầng trệt để thoáng kiểu void deck.
+    </div>
+    <div class="pnote">
+      <b>Công thức khi bật "Áp trần biên NOXH 10%".</b> Giá thành không đổi. App ép <b>giá bán NOXH</b> xuống sao cho lợi nhuận = đúng 10% trên đủ giá thành (xây NOXH + đất phân bổ + hạ tầng phân bổ + thiết kế–pháp lý + dự phòng + 2% bán; miễn tiền SDĐ). Khi bật, <b>thanh trượt giá NOXH tự nhảy về mức trần</b> và bị khoá để anh thấy rõ giá đúng quy định.
+    </div>
+    <div class="pnote">
+      <b>Vốn hoá khối cho thuê (cuối Năm 5).</b> <code>NOI ổn định ÷ cap rate</code> = giá trị tại Năm 5 của toàn bộ dòng thuê + phí đỗ xe từ Năm 6 trở đi. Là giá trị hiện thực hoá khi góp khối lên REIT/IPO hoặc tái cấp vốn, không bán đứt.
+    </div>
+    <div class="pnote">
+      <b>Chỉ số livability.</b> Mốc dịch vụ/người neo theo Singapore (HDB tự cung theo phân cấp; City Form Lab MIT 2016; tham chiếu ~0,78 m²/người). Bảng ngưỡng dân số lấy từ Site Criteria của AnHome. Bảo trì KHÔNG lấy từ thương mại; nguồn là Resident Club.
+    </div>
+  </div>
+  <div class="pbody" data-lang="en">
+    <p>Outputs are only right if the hidden assumptions are right. The adjustable ones are the sliders on the left; the fixed ones are listed below.</p>
+    <h4>Fixed constants</h4>
+    <table class="ptable"><tbody>
+      <tr><td>Plot ratio</td><td>40%</td></tr>
+      <tr><td>AH: 12-floor structure</td><td>floor 1 void deck + floor 2 motorbike podium + floors 3–12 (10) flats</td></tr>
+      <tr><td>AH: base floors (void + podium)</td><td>2 floors × footprint, podium rate $231/m²</td></tr>
+      <tr><td>Commercial: effective floors</td><td>9 (incl. no-basement penalty; car parking carved out first)</td></tr>
+      <tr><td>Floor efficiency (net / GFA)</td><td>70%</td></tr>
+      <tr><td>Commercial housing unit (net)</td><td>60 m²</td></tr>
+      <tr><td>AH motorbike parking (QCVN, 60% AH)</td><td>max(12% × AH net area; 6 m²/unit) — auto, free</td></tr>
+      <tr><td>Area per car lot</td><td>25 m² (incl. aisles)</td></tr>
+      <tr><td>Mandatory ground services</td><td>1.5 m²/unit (childcare + community + health post)</td></tr>
+      <tr><td>Podium / services build cost</td><td>$231/m²</td></tr>
+      <tr><td>Leased-block build cost</td><td>$385/m²</td></tr>
+      <tr><td>Infrastructure cost</td><td>$58/m² land</td></tr>
+      <tr><td>Design + legal</td><td>$38/m² land (Year 0)</td></tr>
+      <tr><td>Contingency</td><td>8% of hard cost (with construction schedule)</td></tr>
+      <tr><td>Sales cost</td><td>2% of sale revenue</td></tr>
+      <tr><td>Operations (lease + parking)</td><td>25% of effective revenue</td></tr>
+      <tr><td>NPV discount rate</td><td>12%/year</td></tr>
+      <tr><td>Crystallization year (REIT/IPO)</td><td>Year 5</td></tr>
+    </tbody></table>
+    <div class="pnote">
+      <b>Installment sales collection.</b> Sale cash does NOT arrive in one lump at signing but is collected over time per the Real Estate Business Law: deposit + construction-linked installments (totaling <b>≈ "% collected before handover"</b>, default 60%, max ~70%), with the remainder split at <b>handover</b> (~75% of the remainder) and at <b>certificate</b> (~25%). A key driver: the earlier cash arrives, the less equity is needed and the higher the IRR. AH collection starts in Year 1, commercial lags one year.
+    </div>
+    <div class="pnote">
+      <b>Parking (new).</b> AH uses the QCVN 04:2021 norm for affordable housing (60% of the standard, min 6 m²/unit motorbike) → a separate ~1-floor podium, <b>no revenue</b>. The commercial block follows the Singapore standard (RPPS ~0.5–0.8 car lots/unit): <b>the car-parking area is SUBTRACTED from the commercial GFA first</b>, and only the remainder is split into sale (a) and lease (b); cars <b>pay a monthly fee</b> (recurring, added to NOI, crystallized at exit). The ground floor stays open as a void deck.
+    </div>
+    <div class="pnote">
+      <b>Formula when "Cap AH margin at 10%" is on.</b> Cost does not change. The app forces the <b>AH price</b> down so profit = exactly 10% of full cost (AH construction + allocated land + allocated infra + design–legal + contingency + 2% sales; land-use fee exempt). When on, the <b>AH price slider snaps to the cap</b> and locks so you see the legally correct price.
+    </div>
+    <div class="pnote">
+      <b>Leased-block crystallization (end of Year 5).</b> <code>stabilized NOI ÷ cap rate</code> = the Year-5 value of all rent + parking fees from Year 6 onward. It is the value crystallized when the block is contributed to a REIT/IPO or refinanced, not an outright sale.
+    </div>
+    <div class="pnote">
+      <b>Livability metric.</b> Service-per-person thresholds anchored to Singapore (HDB self-sufficiency hierarchy; City Form Lab MIT 2016; reference ~0.78 m²/person). Population thresholds from AnHome's Site Criteria. Maintenance is NOT funded by commercial spending; the source is the Resident Club.
+    </div>
+  </div>
+</details>
+
+<div class="grid">
+  <div class="panel" id="controls"><h2 data-t="inputs">Biến đầu vào</h2><div id="sliders"></div>
+    <div class="toggle">
+      <div class="tt" data-t="captt">Áp trần biên NOXH 10% (ép lợi nhuận = 10% giá thành, khoá giá bán về trần)</div>
+      <label class="tw"><input type="checkbox" id="capOn"><span class="tk"></span></label>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div>
+    <div class="hero">
+      <div class="ref"><div class="rl" data-t="h_proj">IRR dự án (không vay)</div><div class="rv mono" id="irrProj">–</div></div>
+      <div class="lbl" data-t="h_lev">IRR vốn chủ · có vay</div>
+      <div class="big mono" id="irrEq">–</div>
+      <div class="cap" data-t="h_cap">Tỷ suất hoàn vốn nội bộ của vốn chủ sở hữu</div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k" data-t="kp_moic">MOIC vốn chủ</div><div class="v mono" id="moic">–</div><span class="u" data-t="u_times">lần tiền vốn</span></div>
+      <div class="kpi"><div class="k" data-t="kp_npv">NPV vốn chủ</div><div class="v mono" id="npv">–</div><span class="u" data-t="u_cur">tỷ VND</span></div>
+      <div class="kpi"><div class="k" data-t="kp_eqinv">Vốn chủ bỏ ra</div><div class="v mono" id="eqInv">–</div><span class="u" data-t="u_cur">tỷ VND</span></div>
+      <div class="kpi"><div class="k" data-t="kp_profit">Lợi nhuận vốn chủ</div><div class="v mono" id="profit">–</div><span class="u" data-t="u_cur">tỷ VND</span></div>
+      <div class="kpi"><div class="k" data-t="kp_payback">Hoàn vốn</div><div class="v mono" id="payback">–</div><span class="u" data-t="u_years">năm</span></div>
+      <div class="kpi"><div class="k" data-t="kp_margin">LN / giá thành NOXH</div><div class="v mono" id="marginN">–</div><span class="u" data-t="u_cap">trần 10% (luật)</span></div>
+    </div>
+
+    <div class="chip ok" id="capChip"><span class="badge" id="capBadge">OK</span><span id="capMsg">Lợi nhuận NOXH trong trần 10%.</span></div>
+
+    <div class="bd">
+      <div class="bdh"><span data-t="bd_title">Lợi nhuận phát triển: NOXH vs Thương mại</span> <span class="bdnote" data-t="bd_note">(chưa tính lãi vay)</span></div>
+      <table class="bdt"><thead><tr><th></th><th data-t="bd_rev">Doanh thu</th><th data-t="bd_cost">Giá thành</th><th data-t="bd_prof">Lợi nhuận</th><th data-t="bd_mc">LN/giá thành</th></tr></thead>
+      <tbody>
+        <tr><td class="lab"><span data-t="bd_ah">NOXH</span> <span class="bdcap" id="bdcap"></span></td><td id="bd_rn">–</td><td id="bd_cn">–</td><td id="bd_pn">–</td><td class="m" id="bd_mn">–</td></tr>
+        <tr><td class="lab"><span data-t="bd_com">Thương mại</span> <span class="bdsub" data-t="bd_sub">bán + vốn hoá</span></td><td id="bd_rc">–</td><td id="bd_cc">–</td><td id="bd_pc">–</td><td class="m" id="bd_mc">–</td></tr>
+      </tbody></table>
+      <div class="bdfoot" data-t="bd_foot"><b>Trần 10% chỉ áp cho NOXH</b> (đầu kéo nhu cầu). Phần thương mại theo thị trường, là nơi tạo lợi nhuận chính của dự án. IRR phía trên là của cả dự án gộp hai phần.</div>
+    </div>
+
+    <div class="live">
+      <div class="hdr"><span class="t1" data-t="lv_t">Livability — đủ dịch vụ thiết yếu</span></div>
+      <div class="note" data-t="lv_note">Đo độ đủ dịch vụ cho cư dân, neo theo mô hình tự cung của Singapore (HDB). Bảo trì do Resident Club lo riêng.</div>
+      <div class="irow"><span class="ilab" data-t="lv_ilab">Dịch vụ cho thuê / người</span><span class="ival mono" id="amenV">–</span></div>
+      <svg id="amenBar" viewBox="0 0 680 38" preserveAspectRatio="none" role="img" aria-label="Thước dịch vụ trên người"></svg>
+      <div class="status" id="amenStatus"></div>
+      <div class="cgrid" id="cgrid"></div>
+      <div class="clegend" id="cleg"></div>
+    </div>
+
+    <div class="chartcard">
+      <h3 data-t="cc1_h">Dòng tiền vốn chủ theo năm (tổng quan)</h3>
+      <div class="hint" data-t="cc1_hint">Đỏ = vốn chủ rót vào · Xanh = tiền về vốn chủ (tỷ VND). Đường mảnh = dư nợ vay cuối kỳ.</div>
+      <svg id="chart" viewBox="0 0 680 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Biểu đồ dòng tiền vốn chủ"></svg>
+    </div>
+
+    <div class="chartcard">
+      <h3 data-t="cc2_h">Chi tiết các khoản thu &amp; chi theo năm</h3>
+      <div class="hint" data-t="cc2_hint">Cột trên trục = tiền THU · cột dưới = tiền CHI (tỷ VND). Hình thoi đen = dòng tiền vốn chủ ròng (khớp biểu đồ trên).</div>
+      <svg id="cfchart" viewBox="0 0 680 280" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Biểu đồ thu chi chi tiết"></svg>
+      <div class="leg" id="cfleg"></div>
+      <div class="cftwrap"><div id="cftable"></div></div>
+    </div>
+
+    <div class="strip">
+      <div class="s"><div class="k" data-t="st_uN">Số căn NOXH</div><div class="v mono" id="uN">–</div></div>
+      <div class="s"><div class="k" data-t="st_uA">Số căn nhà ở TM</div><div class="v mono" id="uA">–</div></div>
+      <div class="s"><div class="k" data-t="st_pop">Dân số ước tính</div><div class="v mono" id="pop">–</div></div>
+      <div class="s"><div class="k" data-t="st_car">Chỗ ô tô (TM)</div><div class="v mono" id="carlots">–</div></div>
+      <div class="s"><div class="k" data-t="st_cTotal">Tổng vốn đầu tư</div><div class="v mono" id="cTotal">–</div></div>
+      <div class="s"><div class="k" data-t="st_debt">Tổng vay (gốc)</div><div class="v mono" id="debt">–</div></div>
+      <div class="s"><div class="k" data-t="st_noi">NOI (thuê + đỗ xe)/năm</div><div class="v mono" id="noi">–</div></div>
+      <div class="s"><div class="k" data-t="st_term">Giá trị vốn hoá (REIT/IPO)</div><div class="v mono" id="term">–</div></div>
+      <div class="s"><div class="k" data-t="st_target">Dân số mục tiêu</div><div class="v mono">9–10k</div></div>
+    </div>
+
+    <details class="glossary">
+      <summary data-t="glosssum">Giả định &amp; thuật ngữ</summary>
+      <div class="gbody" data-lang="vi"><dl>
+        <dt>IRR vốn chủ (có vay)</dt><dd>Tỷ suất hoàn vốn nội bộ trên tiền vốn chủ thực bỏ ra, sau khi trả nợ. Chỉ tiêu chính cho nhà đầu tư.</dd>
+        <dt>IRR dự án (không vay)</dt><dd>IRR nếu làm bằng 100% vốn tự có. Dùng tham chiếu xem đòn bẩy giúp hay hại.</dd>
+        <dt>MOIC vốn chủ</dt><dd>Số lần tiền vốn = tổng tiền chia về / tổng vốn bỏ ra.</dd>
+        <dt>NPV vốn chủ</dt><dd>Giá trị hiện tại ròng của dòng tiền vốn chủ, chiết khấu 12%/năm.</dd>
+        <dt>LN / giá thành NOXH</dt><dd>Lợi nhuận NOXH chia giá thành NOXH. Cơ sở của trần luật 10%. Khi bật trần, đúng 10,0%.</dd>
+        <dt>Cap rate</dt><dd>Quy NOI thành giá trị tài sản: giá trị = NOI / cap rate. Cap rate càng thấp, định giá càng cao.</dd>
+        <dt>NOI</dt><dd>Thu nhập hoạt động ròng của khối cho thuê + phí đỗ xe = doanh thu hiệu dụng trừ vận hành.</dd>
+        <dt>Đỗ xe thương mại</dt><dd>Theo chuẩn Singapore (~0,5–0,8 chỗ ô tô/căn), thu phí gửi theo tháng, cộng vào NOI và được vốn hoá khi thoái.</dd>
+        <dt>Tỷ lệ a/b</dt><dd>Trong parcel thương mại: (a) bán đứt, (b) cho thuê dài hạn. Kéo a lên: tiền mặt và IRR tăng, dòng thu định kỳ và livability giảm.</dd>
+        <dt>Tiền sử dụng đất</dt><dd>Chỉ áp cho phần (a) nhà ở TM bán; NOXH và phần cho thuê (b) miễn. Lùi sang Năm 1 để giảm áp lực tài chính.</dd>
+        <dt>Cash sweep</dt><dd>Tiền bán hàng trả nợ trước, phần dư mới về vốn chủ.</dd>
+        <dt>Lãi vốn hoá</dt><dd>Lãi khi chưa có doanh thu được cộng dồn vào dư nợ thay vì trả ngay.</dd>
+        <dt>Dịch vụ cho thuê / người</dt><dd>m² sàn cho thuê (b) chia dân số. Neo Singapore ~0,78 m²/người; dải "đủ thiết yếu" ~0,4–0,8.</dd>
+      </dl></div>
+      <div class="gbody" data-lang="en"><dl>
+        <dt>Equity IRR (levered)</dt><dd>Internal rate of return on the equity actually invested, after debt service. The headline metric for investors.</dd>
+        <dt>Project IRR (unlevered)</dt><dd>IRR if funded with 100% equity. A reference for whether leverage helps or hurts.</dd>
+        <dt>Equity MOIC</dt><dd>Multiple of invested capital = total distributions / total equity invested.</dd>
+        <dt>Equity NPV</dt><dd>Net present value of the equity cash flow, discounted at 12%/year.</dd>
+        <dt>AH profit / cost</dt><dd>AH profit divided by its cost. The basis of the 10% legal cap. When the cap is on, exactly 10.0%.</dd>
+        <dt>Cap rate</dt><dd>Converts NOI into asset value: value = NOI / cap rate. The lower the cap rate, the higher the valuation.</dd>
+        <dt>NOI</dt><dd>Net operating income of the leased block + parking fees = effective revenue minus operations.</dd>
+        <dt>Commercial parking</dt><dd>Per the Singapore standard (~0.5–0.8 car lots/unit), charging a monthly fee, added to NOI and crystallized at exit.</dd>
+        <dt>a/b split</dt><dd>Within the commercial parcel: (a) sold outright, (b) leased long term. Raising a lifts cash and IRR but lowers recurring income and livability.</dd>
+        <dt>Land-use fee</dt><dd>Applied only to part (a), commercial housing for sale; AH and leased (b) are exempt. Deferred to Year 1 to ease financial pressure.</dd>
+        <dt>Cash sweep</dt><dd>Sales cash repays debt first; only the remainder flows to equity.</dd>
+        <dt>Capitalized interest</dt><dd>Interest accruing before revenue is added to the loan balance instead of paid immediately.</dd>
+        <dt>Leased services / person</dt><dd>Leased-services GFA (b) divided by population. Anchored to Singapore ~0.78 m²/person; the "essential" band ~0.4–0.8.</dd>
+      </dl></div>
+    </details>
+  </div>
+</div>
+
+<footer data-t="foot"><b>Mô hình WORKING — không phải kết luận đầu tư.</b> NOXH đỗ xe máy ~1 tầng miễn phí (QCVN 60%); thương mại đỗ ô tô theo chuẩn Singapore, thu phí tháng. Tiền sử dụng đất chỉ phần (a), nằm Năm 2. Xây NOXH Năm 1 (70/30) và thương mại Năm 2; hạ tầng Năm 1; bán TM lùi 1 năm sau NOXH. Khối cho thuê giữ dài hạn, vốn hoá khi lên REIT/IPO. Không tính re-rating bội số platform.</footer>
+</div>
+
+<script>
+let LANG="vi";
+const I18N_LOC={vi:"vi-VN",en:"en-US"};
+let DECSEP=",", LOCALE="vi-VN", USD=false;
+const H={"sub": {"vi": "Kéo thanh trượt để thấy ngay <b>IRR vốn chủ (có vay)</b>. Người mới đọc \"Giới thiệu\" và \"Tham số dùng trong tính toán\". In ra để họp bằng nút In. Đơn vị tiền: tỷ VND.", "en": "Drag the sliders to watch the <b>levered equity IRR</b> respond. If new, read \"Introduction\" and \"Calculation parameters\". Use the Print button for meetings. Currency: US$M (FX 26,000 VND/USD)."}, "print": {"vi": "⎙ In", "en": "⎙ Print"}, "reset": {"vi": "↺ Mặc định", "en": "↺ Reset"}, "pencil": {"vi": "✎ bấm để đổi tên", "en": "✎ click to rename"}, "inputs": {"vi": "Biến đầu vào", "en": "Inputs"}, "introsum": {"vi": "Giới thiệu &amp; cách đọc mô hình (đọc nếu chưa quen dự án)", "en": "Introduction &amp; how to read the model (read if new to the project)"}, "paramsum": {"vi": "Tham số dùng trong tính toán (mở để kiểm tra mọi giả định)", "en": "Calculation parameters (open to check every assumption)"}, "glosssum": {"vi": "Giả định &amp; thuật ngữ", "en": "Assumptions &amp; glossary"}, "captt": {"vi": "Áp trần biên NOXH 10% (ép lợi nhuận = 10% giá thành, khoá giá bán về trần)", "en": "Apply the 10% AH margin cap (forces profit = 10% of cost, locks the sale price to the cap)"}, "h_proj": {"vi": "IRR dự án (không vay)", "en": "Project IRR (unlevered)"}, "h_lev": {"vi": "IRR vốn chủ · có vay", "en": "Equity IRR · levered"}, "h_cap": {"vi": "Tỷ suất hoàn vốn nội bộ của vốn chủ sở hữu", "en": "Internal rate of return on equity"}, "kp_moic": {"vi": "MOIC vốn chủ", "en": "Equity MOIC"}, "u_times": {"vi": "lần tiền vốn", "en": "× capital"}, "kp_npv": {"vi": "NPV vốn chủ", "en": "Equity NPV"}, "u_cur": {"vi": "tỷ VND", "en": "US$M"}, "kp_eqinv": {"vi": "Vốn chủ bỏ ra", "en": "Equity invested"}, "kp_profit": {"vi": "Lợi nhuận vốn chủ", "en": "Equity profit"}, "kp_payback": {"vi": "Hoàn vốn", "en": "Payback"}, "u_years": {"vi": "năm", "en": "years"}, "kp_margin": {"vi": "LN / giá thành NOXH", "en": "AH profit / cost"}, "u_cap": {"vi": "trần 10% (luật)", "en": "10% legal cap"}, "bd_title": {"vi": "Lợi nhuận phát triển: NOXH vs Thương mại", "en": "Development profit: AH vs Commercial"}, "bd_note": {"vi": "(chưa tính lãi vay)", "en": "(before financing · US$M)"}, "bd_rev": {"vi": "Doanh thu", "en": "Revenue"}, "bd_cost": {"vi": "Giá thành", "en": "Cost"}, "bd_prof": {"vi": "Lợi nhuận", "en": "Profit"}, "bd_mc": {"vi": "LN/giá thành", "en": "Profit/cost"}, "bd_ah": {"vi": "NOXH", "en": "AH"}, "bd_com": {"vi": "Thương mại", "en": "Commercial"}, "bd_sub": {"vi": "bán + vốn hoá", "en": "sale + crystallization"}, "bd_foot": {"vi": "<b>Trần 10% chỉ áp cho NOXH</b> (đầu kéo nhu cầu). Phần thương mại theo thị trường, là nơi tạo lợi nhuận chính của dự án. IRR phía trên là của cả dự án gộp hai phần.", "en": "<b>The 10% cap applies to AH only</b> (the demand anchor). The commercial portion is market-priced and is where the project's main profit comes from. The IRR above is for the whole project, both parts combined."}, "lv_t": {"vi": "Livability — đủ dịch vụ thiết yếu", "en": "Livability — essential-service sufficiency"}, "lv_note": {"vi": "Đo độ đủ dịch vụ cho cư dân, neo theo mô hình tự cung của Singapore (HDB). Bảo trì do Resident Club lo riêng.", "en": "Measures service sufficiency for residents, anchored to Singapore's self-sufficient model (HDB). Maintenance is handled separately by the Resident Club."}, "lv_ilab": {"vi": "Dịch vụ cho thuê / người", "en": "Leasable services / person"}, "cc1_h": {"vi": "Dòng tiền vốn chủ theo năm (tổng quan)", "en": "Equity cash flow by year (overview)"}, "cc1_hint": {"vi": "Đỏ = vốn chủ rót vào · Xanh = tiền về vốn chủ (tỷ VND). Đường mảnh = dư nợ vay cuối kỳ.", "en": "Red = equity contributed · Green = cash returned to equity (US$M). Thin line = year-end debt balance."}, "cc2_h": {"vi": "Chi tiết các khoản thu &amp; chi theo năm", "en": "Inflows &amp; outflows by year (detail)"}, "cc2_hint": {"vi": "Cột trên trục = tiền THU · cột dưới = tiền CHI (tỷ VND). Hình thoi đen = dòng tiền vốn chủ ròng (khớp biểu đồ trên).", "en": "Bars above the axis = INFLOWS · below = OUTFLOWS (US$M). Black diamond = net equity cash flow (matches the chart above)."}, "st_uN": {"vi": "Số căn NOXH", "en": "AH units"}, "st_uA": {"vi": "Số căn nhà ở TM", "en": "Commercial units"}, "st_pop": {"vi": "Dân số ước tính", "en": "Estimated population"}, "st_car": {"vi": "Chỗ ô tô (TM)", "en": "Car lots (comm.)"}, "st_cTotal": {"vi": "Tổng vốn đầu tư", "en": "Total investment"}, "st_debt": {"vi": "Tổng vay (gốc)", "en": "Total debt (principal)"}, "st_noi": {"vi": "NOI (thuê + đỗ xe)/năm", "en": "NOI (lease + parking)/yr"}, "st_term": {"vi": "Giá trị vốn hoá (REIT/IPO)", "en": "Crystallized value (REIT/IPO)"}, "st_target": {"vi": "Dân số mục tiêu", "en": "Target population"}, "save": {"vi": "⤓ Lưu", "en": "⤓ Save"}, "open": {"vi": "⤒ Mở", "en": "⤒ Open"}, "foot": {"vi": "<b>Mô hình WORKING — không phải kết luận đầu tư.</b> NOXH đỗ xe máy ~1 tầng miễn phí (QCVN 60%); thương mại đỗ ô tô theo chuẩn Singapore, thu phí tháng. Tiền sử dụng đất chỉ phần (a), nằm Năm 2. Xây NOXH Năm 1 (70/30) và thương mại Năm 2; hạ tầng Năm 1; bán TM lùi 1 năm sau NOXH. Khối cho thuê giữ dài hạn, vốn hoá khi lên REIT/IPO. Không tính re-rating bội số platform.", "en": "<b>WORKING model — not investment advice.</b> AH motorbike parking ~1 floor, free (QCVN 60%); commercial car parking per Singapore, monthly fee. Land-use fee applies to part (a) only, in Year 2. AH is built in Year 1 (70/30) and commercial in Year 2; infrastructure in Year 1; commercial sales lag AH by one year. The leased block is held long-term and crystallized at REIT/IPO. Platform-multiple re-rating is not included."}};
+const TR={"Đất & quy mô": "Land & scale", "Căn hộ & dân số": "Units & population", "Giá & doanh thu": "Price & revenue", "Đỗ xe (QCVN + Singapore)": "Parking (QCVN + Singapore)", "Suất xây & đất": "Build cost & land", "Vay (đòn bẩy)": "Debt (leverage)", "Định giá & vận hành": "Valuation & operations", "Diện tích đất, tỷ lệ thương mại (trần luật 20%), và chia bán/thuê trong phần thương mại.": "Land area, commercial share (20% legal cap), and the sale/lease split within the commercial part.", "Diện tích căn NOXH đổi số căn và tài chính. Người/căn chỉ đổi dân số và livability.": "AH unit size drives the unit count and economics. People/unit only changes population and livability.", "Giá bán có trần NOXH ~30tr/m². Tiền bán thu theo tiến độ (trả góp): kéo '% thu trước bàn giao' để chỉnh độ sớm/muộn của dòng tiền.": "AH price capped at ~$1,154/m². Sales cash collected in installments: drag '% collected before handover' to shift cash earlier or later.", "NOXH xe máy ~1 tầng, miễn phí, tự tính theo QCVN. Khối TM đỗ ô tô theo Singapore, thu phí tháng.": "AH motorbikes ~1 floor, free, auto per QCVN. Commercial car parking per Singapore, monthly fee.", "Suất xây = chi phí xây trên m² sàn. Tiền sử dụng đất chỉ áp cho phần (a) nhà ở TM bán.": "Build cost = construction cost per m² of floor. Land-use fee applies only to part (a), the commercial homes for sale.", "Vay theo % chi phí xây và % giá đất. Kéo lãi vay xây NOXH về 0% để mô phỏng ưu đãi HIFC.": "Borrow as % of build cost and % of land value. Drag the AH construction interest to 0% to simulate the HIFC incentive.", "Cap rate vốn hoá khối cho thuê khi lên REIT/IPO (giá trị = NOI / cap rate).": "Capitalization rate for the leased block at REIT/IPO (value = NOI / cap rate).", "Diện tích khu đất": "Land area", "% đất dành cho thương mại": "% land for commercial", "% thương mại để BÁN (a)": "% commercial for SALE (a)", "Diện tích căn NOXH (net)": "AH unit size (net)", "Người / căn NOXH": "People / AH unit", "Người / căn nhà ở TM": "People / commercial unit", "Giá bán NOXH": "Affordable housing price", "Giá bán nhà ở TM": "Commercial housing price", "Giá thuê khối TM": "Commercial lease rent", "% thu tiền trước bàn giao (trả góp)": "% collected before handover (installments)", "Chỗ ô tô / căn TM": "Car lots / commercial unit", "Phí gửi ô tô / tháng": "Parking fee / month", "Suất xây NOXH": "AH build cost", "Suất xây nhà ở TM": "Commercial build cost", "Giá đất thô (đất NN)": "Raw land (agricultural)", "Tiền sử dụng đất (phần a)": "Land-use fee (part a)", "Vay / chi phí xây dựng": "Loan / construction cost", "Vay / giá trị đất": "Loan / land value", "Lãi vay xây NOXH": "AH construction interest", "Lãi vay xây thương mại": "Commercial construction interest", "Lãi vay đất": "Land loan interest", "Cap rate vốn hoá": "Capitalization rate", "Tỷ lệ trống cho thuê": "Lease vacancy rate", "người": "people", "chỗ/căn": "lots/unit", "%/năm": "%/yr", "Tạp hoá / kiosk": "Grocery / kiosk", "Cụm F&B (3–5 quầy)": "F&B cluster (3–5 stalls)", "Nhà trẻ (100 chỗ)": "Childcare (100 places)", "Chợ ướt": "Wet market", "Siêu thị lớn": "Large supermarket", "Phòng khám": "Polyclinic", "Bán nhà (NOXH+TM)": "Home sales (AH+comm.)", "NOI + vốn hoá": "NOI + crystallization", "Giải ngân vay": "Loan drawdown", "Xây + hạ tầng": "Construction + infra", "Đất + SDĐ + khác": "Land + fee + other", "Trả nợ vay": "Debt repayment", "Ròng vốn chủ": "Net equity", "Bán NOXH": "AH sales", "Bán nhà ở TM": "Commercial sales", "NOI thuê + đỗ xe": "Lease + parking NOI", "Vốn hoá REIT/IPO": "REIT/IPO crystallization", "Đất": "Land", "Tiền sử dụng đất": "Land-use fee", "Xây dựng": "Construction", "Hạ tầng": "Infrastructure", "Thiết kế + pháp lý": "Design + legal", "Dự phòng": "Contingency", "Chi phí bán": "Sales cost", "Tổng thu": "Total inflows", "Tổng chi": "Total outflows", "Dòng tiền vốn chủ ròng": "Net equity cash flow", "Lũy kế vốn chủ": "Cumulative equity", "Tổng": "Total", "▲ THU": "▲ INFLOWS", "▼ CHI": "▼ OUTFLOWS", "Lợi nhuận NOXH ": "AH profit ", " trên giá thành, &gt; trần 10%. Bật công tắc trần để ép về đúng 10%.": " on cost, &gt; the 10% cap. Turn on the cap switch to force it to exactly 10%.", " trên giá thành — trong trần 10%.": " on cost — within the 10% cap.", "VƯỢT TRẦN": "OVER CAP", "⚠ Dưới mức thiết yếu (0,4) — thiếu dịch vụ hàng ngày tại chỗ.": "⚠ Below the essential level (0.4) — lacking daily services on-site.", "✓ Đủ dịch vụ thiết yếu hàng ngày (0,4–0,8, neo theo Singapore).": "✓ Enough essential daily services (0.4–0.8, anchored to Singapore).", "✓ Dư rộng trên mức thiết yếu — phần dôi phục vụ dòng thu định kỳ và re-rating IPO.": "✓ Generous above essential — the surplus serves recurring income and IPO re-rating.", "✓ cụm tự nuôi được &nbsp;·&nbsp; ▲ dựa vào dân vùng xung quanh &nbsp;·&nbsp; tự nuôi ": "✓ cluster self-sufficient &nbsp;·&nbsp; ▲ relies on surrounding catchment &nbsp;·&nbsp; self-sufficient ", " loại.": " types.", "(trần 10%)": "(10% cap)", "↓ trần": "↓ cap", "chỗ": "lots", "m²/ng": "m²/person", "NOXH đỗ xe máy tự tính theo QCVN (60% NOXH, tối thiểu 6 m²/căn), miễn phí. Số chỗ ô tô khối TM:": "AH motorbike parking auto per QCVN (60% AH, min 6 m²/unit), free. Commercial car lots:"};
+function t(x){return LANG==="en"?(TR[x]!=null?TR[x]:x):x;}
+const F={density:0.40,floors:9,floorsN:10,baseFloorsN:2,eff:0.70,dtTm:60,
+  carLot:25,svcPerUnit:1.5,noxhMtbFloor:6,noxhParkPct:0.12,
+  xdThue:10,xdPodium:6,haTang:1.5,tkPhaply:1,duPhong:0.08,banHang:0.02,opex:0.25,disc:0.12,exitYear:5,noxhCap:0.10,
+  ph_conN:[0,0.7,0.3,0,0,0],ph_conTm:[0,0,1,0,0,0],ph_inf:[0,1,0,0,0,0],ph_soft:[1,0,0,0,0,0],
+  ph_saleN:[0,0.5,0.5,0,0,0],ph_saleA:[0,0,0.5,0.5,0,0],ph_noi:[0,0,0,0.5,1,1]};
+const DEF={landHa:5.6,tyTmPct:20,aPct:65,dtNoxh:58,ngNoxh:3.8,ngTm:4.0,pNoxh:30,pTm:55,rent:250,preHO:60,
+  carPerUnit:0.8,carFee:1000,xdNoxh:11,xdTm:14,giaDat:5,sdd:10,ltvCon:70,ltvLand:70,laiNoxh:8,laiTm:8,laiLand:8,cap:9,vac:10};
+const SERVICES=[
+ {n:"Tạp hoá / kiosk",p:500},{n:"Cụm F&B (3–5 quầy)",p:1000},{n:"Nhà trẻ (100 chỗ)",p:1500},
+ {n:"Mini-supermarket",p:2000},{n:"Chợ ướt",p:5000},{n:"Siêu thị lớn",p:6000},
+ {n:"Phòng khám",p:10000},{n:"Neighbourhood centre",p:12000}];
+
+const GROUPS=[
+ {h:"Đất & quy mô", note:"Diện tích đất, tỷ lệ thương mại (trần luật 20%), và chia bán/thuê trong phần thương mại.", items:[
+   {k:"landHa",min:3.5,max:9.5,step:0.1,unit:"ha",dec:1,name:"Diện tích khu đất"},
+   {k:"tyTmPct",min:10,max:20,step:1,unit:"%",dec:0,name:"% đất dành cho thương mại"},
+   {k:"aPct",min:0,max:100,step:5,unit:"%",dec:0,name:"% thương mại để BÁN (a)"}]},
+ {h:"Căn hộ & dân số", note:"Diện tích căn NOXH đổi số căn và tài chính. Người/căn chỉ đổi dân số và livability.", items:[
+   {k:"dtNoxh",min:40,max:70,step:1,unit:"m²",dec:0,name:"Diện tích căn NOXH (net)"},
+   {k:"ngNoxh",min:2.5,max:5,step:0.1,unit:"người",dec:1,name:"Người / căn NOXH"},
+   {k:"ngTm",min:2.5,max:5,step:0.1,unit:"người",dec:1,name:"Người / căn nhà ở TM"}]},
+ {h:"Giá & doanh thu", note:"Giá bán có trần NOXH ~30tr/m². Tiền bán thu theo tiến độ (trả góp): kéo '% thu trước bàn giao' để chỉnh độ sớm/muộn của dòng tiền.", items:[
+   {k:"pNoxh",min:20,max:30,step:0.5,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:1,name:"Giá bán NOXH"},
+   {k:"pTm",min:40,max:65,step:1,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:0,name:"Giá bán nhà ở TM"},
+   {k:"rent",min:150,max:400,step:10,unit:"k/m²/th",unitUSD:"US$/m²/mo",cur:"k",dec:0,name:"Giá thuê khối TM"},
+   {k:"preHO",min:40,max:70,step:5,unit:"%",dec:0,name:"% thu tiền trước bàn giao (trả góp)"}]},
+ {h:"Đỗ xe (QCVN + Singapore)", note:"NOXH xe máy ~1 tầng, miễn phí, tự tính theo QCVN. Khối TM đỗ ô tô theo Singapore, thu phí tháng.", items:[
+   {k:"carPerUnit",min:0.3,max:1.2,step:0.05,unit:"chỗ/căn",dec:2,name:"Chỗ ô tô / căn TM"},
+   {k:"carFee",min:500,max:1500,step:250,unit:"k/ô tô/th",unitUSD:"US$/car/mo",cur:"k",dec:0,name:"Phí gửi ô tô / tháng"}]},
+ {h:"Suất xây & đất", note:"Suất xây = chi phí xây trên m² sàn. Tiền sử dụng đất chỉ áp cho phần (a) nhà ở TM bán.", items:[
+   {k:"xdNoxh",min:8,max:20,step:0.5,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:1,name:"Suất xây NOXH"},
+   {k:"xdTm",min:10,max:22,step:0.5,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:1,name:"Suất xây nhà ở TM"},
+   {k:"giaDat",min:2,max:15,step:0.5,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:1,name:"Giá đất thô (đất NN)"},
+   {k:"sdd",min:0,max:37,step:1,unit:"tr/m²",unitUSD:"US$/m²",cur:"m2",dec:0,name:"Tiền sử dụng đất (phần a)"}]},
+ {h:"Vay (đòn bẩy)", note:"Vay theo % chi phí xây và % giá đất. Kéo lãi vay xây NOXH về 0% để mô phỏng ưu đãi HIFC.", items:[
+   {k:"ltvCon",min:0,max:85,step:5,unit:"%",dec:0,name:"Vay / chi phí xây dựng"},
+   {k:"ltvLand",min:0,max:85,step:5,unit:"%",dec:0,name:"Vay / giá trị đất"},
+   {k:"laiNoxh",min:0,max:16,step:0.5,unit:"%/năm",dec:1,name:"Lãi vay xây NOXH"},
+   {k:"laiTm",min:0,max:16,step:0.5,unit:"%/năm",dec:1,name:"Lãi vay xây thương mại"},
+   {k:"laiLand",min:0,max:16,step:0.5,unit:"%/năm",dec:1,name:"Lãi vay đất"}]},
+ {h:"Định giá & vận hành", note:"Cap rate vốn hoá khối cho thuê khi lên REIT/IPO (giá trị = NOI / cap rate).", items:[
+   {k:"cap",min:6,max:12,step:0.25,unit:"%",dec:2,name:"Cap rate vốn hoá"},
+   {k:"vac",min:0,max:25,step:1,unit:"%",dec:0,name:"Tỷ lệ trống cho thuê"}]},
+];
+let S={...DEF}, capOn=false, lastCapPrice=null;
+
+function compute(s,cap){
+  const f=F;
+  const land=s.landHa*10000, tyTm=s.tyTmPct/100, tyNoxh=1-tyTm;
+  const tyA=s.aPct/100, tyB=1-tyA;
+  const dtNoxh=s.dtNoxh, xdTm=s.xdTm;
+  const foot=land*f.density;
+  const landN=land*tyNoxh, footN=landN*f.density, gfaN=footN*f.floorsN, netN=gfaN*f.eff, uN=netN/dtNoxh;
+  // Khối thương mại: TRỪ diện tích để xe ô tô RA TRƯỚC, phần GFA còn lại mới chia bán (a) / cho thuê (b)
+  const landTm=land*tyTm, landA=landTm*tyA, gfaTmTotal=landTm*f.density*f.floors;
+  const uA=gfaTmTotal*tyA*f.eff/(f.dtTm + s.carPerUnit*f.carLot*tyA*f.eff);
+  const carLots=s.carPerUnit*uA, parkCom=carLots*f.carLot;          // đỗ ô tô, trừ ra trước
+  const remGFA=Math.max(0,gfaTmTotal-parkCom);
+  const gfaA=remGFA*tyA, netA=gfaA*f.eff;
+  const gfaB=remGFA*tyB, netB=gfaB*f.eff;
+  const pop=uN*s.ngNoxh+uA*s.ngTm;
+  // NOXH 12 tầng: tầng 1 thông (void deck + dịch vụ bắt buộc) + tầng 2 podium xe máy + tầng 3-12 (10 tầng) căn hộ
+  const baseN=footN*f.baseFloorsN;                                 // 2 tầng đế × diện tích sàn NOXH
+  const parkReqN=Math.max(f.noxhParkPct*netN, f.noxhMtbFloor*uN);  // nhu cầu đỗ xe máy QCVN (kiểm tra: 1 tầng podium = footN m² chứa đủ)
+  // construction costs (tỷ)
+  const cXdN=gfaN*s.xdNoxh/1000, cXdA=gfaA*xdTm/1000, cXdB=gfaB*f.xdThue/1000;
+  const cBaseN=baseN*f.xdPodium/1000, cParkC=parkCom*f.xdPodium/1000;
+  const cConN=cXdN+cBaseN, cConTm=cXdA+cXdB+cParkC, cConstr=cConN+cConTm;
+  const cLand=land*s.giaDat/1000, cSdd=landA*s.sdd/1000, cInfra=land*f.haTang/1000;
+  const cHard=cInfra+cConstr, cSoft=land*f.tkPhaply/1000, cCont=cHard*f.duPhong;
+  // NOXH cap (profit = 10% of full NOXH cost incl 2% sales)
+  const costnCap=cXdN+cBaseN+cLand*(landN/land)+cInfra*(landN/land)+(cSoft+cCont)*(cConN/cConstr);
+  const priceCap=(1+f.noxhCap)*costnCap/(1-(1+f.noxhCap)*f.banHang)/netN*1000;
+  const pNoxhEff=cap?Math.min(s.pNoxh,priceCap):s.pNoxh;
+  const revNoxh=netN*pNoxhEff/1000, revTm=netA*s.pTm/1000;
+  const costnFull=costnCap+revNoxh*f.banHang, profitN=revNoxh-costnFull, marginN=costnFull>0?profitN/costnFull:0;
+  // rent + parking NOI (tỷ/năm)
+  const rentGross=netB*s.rent*12/1e6;
+  const parkGross=carLots*s.carFee*12/1e6;
+  const grossEff=(rentGross+parkGross)*(1-s.vac/100);
+  const noi=grossEff*(1-f.opex), term=noi/(s.cap/100);
+  const cTotal=cLand+cSdd+cHard+cSoft+cCont+(revNoxh+revTm)*f.banHang;
+  // tách lợi nhuận NOXH vs thương mại (lợi nhuận phát triển, chưa tính lãi vay). costN + cCom = cTotal
+  const costN=costnFull;
+  const cCom=cLand*(landTm/land)+cSdd+cInfra*(landTm/land)+(cSoft+cCont)*(cConTm/cConstr)+cXdA+cXdB+cParkC+revTm*f.banHang;
+  const revCom=revTm+term, profitCom=revCom-cCom, marginCom=cCom>0?profitCom/cCom:0;
+  // cashflow components (revenue thu theo tiến độ trả góp)
+  const Y=[0,1,2,3,4,5];
+  const pre=s.preHO/100;
+  const phCashN=[0, pre*0.35, pre*0.65, (1-pre)*0.75, (1-pre)*0.25, 0];
+  const phCashA=[0, 0, pre*0.35, pre*0.65, (1-pre)*0.75, (1-pre)*0.25];
+  const saleN=Y.map(y=>revNoxh*phCashN[y]);
+  const saleA=Y.map(y=>revTm*phCashA[y]);
+  const noiIn=Y.map(y=>noi*f.ph_noi[y]);
+  const termIn=Y.map(y=>y===f.exitYear?term:0);
+  const oLand=Y.map(y=>y===0?cLand:0);
+  const oSdd=Y.map(y=>y===2?cSdd:0);
+  const oCon=Y.map(y=>cConN*f.ph_conN[y]+cConTm*f.ph_conTm[y]); const wCon=oCon.map(v=>v/cConstr);
+  const oInf=Y.map(y=>cInfra*f.ph_inf[y]);
+  const oSoft=Y.map(y=>cSoft*f.ph_soft[y]+cCont*wCon[y]);
+  const oSales=Y.map(y=>revNoxh*f.banHang*f.ph_saleN[y]+revTm*f.banHang*f.ph_saleA[y]);
+  const oSoftOnly=Y.map(y=>cSoft*f.ph_soft[y]);
+  const oContOnly=Y.map(y=>cCont*wCon[y]);
+  const inOp=Y.map(y=>saleN[y]+saleA[y]+noiIn[y]+termIn[y]);
+  const outOp=Y.map(y=>oLand[y]+oSdd[y]+oCon[y]+oInf[y]+oSoft[y]+oSales[y]);
+  const net=Y.map(y=>inOp[y]-outOp[y]);
+  // debt 3 tranches
+  const ltvC=s.ltvCon/100, ltvL=s.ltvLand/100;
+  const tr=[{bal:0,rate:s.laiNoxh/100},{bal:0,rate:s.laiTm/100},{bal:0,rate:s.laiLand/100}];
+  const draw=[],repay=[],close=[];
+  for(const y of Y){
+    const dN=ltvC*cConN*f.ph_conN[y], dT=ltvC*cConTm*f.ph_conTm[y], dL=(y===0?ltvL*cLand:0);
+    const dr=[dN,dT,dL]; let td=0,pre=0;
+    for(let i=0;i<3;i++){const it=tr[i].rate*(tr[i].bal+0.5*dr[i]); tr[i].bal=tr[i].bal+dr[i]+it; td+=dr[i]; pre+=tr[i].bal;}
+    let sweep=Math.min(pre, inOp[y]), rem=sweep;
+    const order=[0,1,2].sort((a,b)=>tr[b].rate-tr[a].rate);
+    for(const i of order){const pay=Math.min(tr[i].bal,rem); tr[i].bal-=pay; rem-=pay;}
+    draw.push(td); repay.push(sweep); close.push(tr[0].bal+tr[1].bal+tr[2].bal);
+  }
+  const eq=Y.map(y=>net[y]+draw[y]-repay[y]);
+  const irrEq=irr(eq), irrProj=irr(net);
+  const npvEq=eq.reduce((a,c,i)=>a+c/Math.pow(1+f.disc,i),0);
+  const eqInv=-eq.filter(v=>v<0).reduce((a,b)=>a+b,0);
+  const eqRet=eq.filter(v=>v>0).reduce((a,b)=>a+b,0);
+  const moic=eqInv>0?eqRet/eqInv:null, profit=eq.reduce((a,b)=>a+b,0);
+  const debt=draw.reduce((a,b)=>a+b,0);
+  let cum=0,cumArr=[]; for(const y of Y){cum+=eq[y];cumArr.push(cum);}
+  const payback=paybackCalc(cumArr,eq);
+  const amen=pop>0?gfaB/pop:0;
+  const cf={saleN,saleA,noi:noiIn,term:termIn,draw,oLand,oSdd,oCon,oInf,oSoft:oSoftOnly,oCont:oContOnly,oSales,repay,eq,cum:cumArr};
+  return {uN,uA,pop,carLots,cTotal,debt,noi,term,marginN,irrEq,irrProj,npvEq,eqInv,moic,profit,payback,eq,close,amen,priceCap,pNoxhEff,
+    revNoxh,costN,profitN,revCom,cCom,profitCom,marginCom,parkReqN,footN,baseN,cf};
+}
+function irr(cf){
+  const npv=r=>cf.reduce((s,c,i)=>s+c/Math.pow(1+r,i),0);
+  let lo=-0.95,hi=12,flo=npv(lo),fhi=npv(hi);
+  if(isNaN(flo)||isNaN(fhi)||flo*fhi>0) return null;
+  for(let k=0;k<200;k++){const m=(lo+hi)/2,fm=npv(m);if(Math.abs(fm)<1e-7)return m;if(flo*fm<0){hi=m;fhi=fm;}else{lo=m;flo=fm;}}
+  return (lo+hi)/2;
+}
+function paybackCalc(cum,net){let n=cum.filter(v=>v<0).length;if(n===0)return 0;if(n>=6)return null;const last=cum[n-1],nx=net[n];if(nx===0)return null;return (n-1)+(-last)/nx;}
+
+const FX=26000;  // USD set by applyLang                 // bản EN đặt USD=true (chỉ đổi hiển thị; mô hình vẫn chạy bằng VND)
+const cvTy=v=>USD?v*1000/FX:v;             // tỷ VND -> US$M
+const cvM2=v=>USD?v*1e6/FX:v;              // tr/m² -> US$/m²
+const cvK =v=>USD?v*1000/FX:v;             // k/kỳ -> US$/kỳ
+const dTy =USD?1:0;
+const fmtPct=v=>v==null?'n/a':(v*100).toFixed(1).replace('.',DECSEP)+'%';
+const fmtTy =v=>v==null?'–':cvTy(v).toLocaleString(LOCALE,{maximumFractionDigits:dTy});
+const fmtX  =v=>v==null?'n/a':v.toFixed(2).replace('.',DECSEP)+'×';
+const fmtN  =v=>Math.round(v).toLocaleString(LOCALE);
+const fmtYr =v=>v==null?'>5':v.toFixed(2).replace('.',DECSEP);
+const fmtVal=(v,dec)=>v.toFixed(dec).replace('.',DECSEP);
+const m2disp=v=>USD?cvM2(v).toFixed(0).replace('.',DECSEP):fmtVal(v,1);
+function sVal(it,v){if(USD&&it.cur){const c=it.cur==='m2'?cvM2(v):cvK(v);return c.toFixed(it.cur==='m2'?0:1).replace('.',DECSEP);}return fmtVal(v,it.dec);}
+function sTick(it,x){if(USD&&it.cur){const c=it.cur==='m2'?cvM2(x):cvK(x);return c.toFixed(it.cur==='m2'?0:1).replace('.',DECSEP);}return (''+x).replace('.',DECSEP);}
+function sUnit(it){return USD&&it.unitUSD?it.unitUSD:t(it.unit);}
+function irrColor(v){if(v==null)return '#FFB199';if(v<0.12)return '#FFB199';if(v<0.20)return '#FFD9A0';return '#7DE0BB';}
+
+function render(){
+  const r=compute(S,capOn);
+  // cap-snap on the price slider
+  const slP=document.getElementById('sl_pNoxh'), vlP=document.getElementById('vl_pNoxh'), grpP=document.getElementById('grp_pNoxh'), tagP=document.getElementById('tag_pNoxh');
+  if(capOn){
+    slP.disabled=true; slP.value=r.pNoxhEff; vlP.textContent=m2disp(r.pNoxhEff); tagP.style.display='inline';
+    if(lastCapPrice!==null && Math.abs(lastCapPrice-r.pNoxhEff)>1e-6){grpP.classList.remove('flash');void grpP.offsetWidth;grpP.classList.add('flash');}
+    lastCapPrice=r.pNoxhEff;
+  } else { slP.disabled=false; slP.value=S.pNoxh; vlP.textContent=m2disp(S.pNoxh); tagP.style.display='none'; lastCapPrice=null; }
+
+  const e=document.getElementById('irrEq'); e.textContent=fmtPct(r.irrEq); e.style.color=irrColor(r.irrEq);
+  document.getElementById('irrProj').textContent=fmtPct(r.irrProj);
+  document.getElementById('moic').textContent=fmtX(r.moic);
+  document.getElementById('npv').textContent=fmtTy(r.npvEq);
+  document.getElementById('eqInv').textContent=fmtTy(r.eqInv);
+  document.getElementById('profit').textContent=fmtTy(r.profit);
+  document.getElementById('payback').textContent=fmtYr(r.payback);
+  document.getElementById('marginN').textContent=fmtPct(r.marginN);
+  document.getElementById('uN').textContent=fmtN(r.uN);
+  document.getElementById('uA').textContent=fmtN(r.uA);
+  document.getElementById('pop').textContent=fmtN(r.pop);
+  document.getElementById('carlots').textContent=fmtN(r.carLots);
+  document.getElementById('cTotal').textContent=fmtTy(r.cTotal);
+  document.getElementById('debt').textContent=fmtTy(r.debt);
+  document.getElementById('noi').textContent=cvTy(r.noi).toLocaleString(LOCALE,{maximumFractionDigits:1});
+  document.getElementById('term').textContent=fmtTy(r.term);
+  const chip=document.getElementById('capChip'),badge=document.getElementById('capBadge'),msg=document.getElementById('capMsg');
+  if(r.marginN>F.noxhCap+1e-4){chip.className='chip bad';badge.textContent=t('VƯỢT TRẦN');
+    msg.innerHTML=t('Lợi nhuận NOXH ')+fmtPct(r.marginN)+t(' trên giá thành, &gt; trần 10%. Bật công tắc trần để ép về đúng 10%.');}
+  else{chip.className='chip ok';badge.textContent='OK';msg.innerHTML=t('Lợi nhuận NOXH ')+fmtPct(r.marginN)+t(' trên giá thành — trong trần 10%.');}
+  document.getElementById('amenV').textContent=fmtVal(r.amen,2)+' '+t('m²/ng');
+  drawAmen(r.amen);
+  const st=document.getElementById('amenStatus');
+  if(r.amen<0.4){st.textContent=t('⚠ Dưới mức thiết yếu (0,4) — thiếu dịch vụ hàng ngày tại chỗ.');st.style.color='var(--red)';}
+  else if(r.amen<=0.8){st.textContent=t('✓ Đủ dịch vụ thiết yếu hàng ngày (0,4–0,8, neo theo Singapore).');st.style.color='var(--green)';}
+  else {st.textContent=t('✓ Dư rộng trên mức thiết yếu — phần dôi phục vụ dòng thu định kỳ và re-rating IPO.');st.style.color='var(--green)';}
+  const cg=document.getElementById('cgrid'); cg.innerHTML='';
+  SERVICES.forEach(sv=>{const ok=r.pop>=sv.p;
+    cg.innerHTML+=`<div class="ci ${ok?'y':'n'}"><span class="mk">${ok?'✓':'▲'}</span><span class="cn">${t(sv.n)}</span><span class="cp">${(sv.p/1000).toString().replace('.',DECSEP)}k</span></div>`;});
+  const okN=SERVICES.filter(sv=>r.pop>=sv.p).length;
+  document.getElementById('cleg').innerHTML=t('✓ cụm tự nuôi được &nbsp;·&nbsp; ▲ dựa vào dân vùng xung quanh &nbsp;·&nbsp; tự nuôi ')+okN+'/'+SERVICES.length+t(' loại.');
+  drawChart(r.eq,r.close);
+  drawCF(r.cf);
+  drawTable(r.cf);
+  renderBreakdown(r);
+}
+
+function drawAmen(v){
+  const W=680,sc=W/2.0;
+  const zones=[[0,0.4,'#F3C9C2'],[0.4,0.8,'#BFE3D4'],[0.8,2.0,'#CFE0F3']];
+  let svg='';
+  zones.forEach(z=>{svg+=`<rect x="${(z[0]*sc).toFixed(1)}" y="10" width="${((z[1]-z[0])*sc).toFixed(1)}" height="16" fill="${z[2]}"/>`;});
+  [0.4,0.8].forEach(t=>{svg+=`<line x1="${(t*sc).toFixed(1)}" y1="8" x2="${(t*sc).toFixed(1)}" y2="28" stroke="#9FB0C0" stroke-width="1"/>`;
+    svg+=`<text x="${(t*sc).toFixed(1)}" y="37" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5A6B7B">${(''+t).replace('.',DECSEP)}</text>`;});
+  svg+=`<line x1="${(0.78*sc).toFixed(1)}" y1="9" x2="${(0.78*sc).toFixed(1)}" y2="27" stroke="#2563EB" stroke-width="1.4" stroke-dasharray="2 2"/>`;
+  svg+=`<text x="${(0.78*sc).toFixed(1)}" y="7" text-anchor="middle" font-family="Inter" font-size="8.5" fill="#2563EB">SG 0${DECSEP}78</text>`;
+  const x=Math.min(W-2,Math.max(2,v*sc));
+  svg+=`<polygon points="${x.toFixed(1)},6 ${(x-5).toFixed(1)},0 ${(x+5).toFixed(1)},0" fill="#0E1B2A"/>`;
+  svg+=`<line x1="${x.toFixed(1)}" y1="6" x2="${x.toFixed(1)}" y2="28" stroke="#0E1B2A" stroke-width="2"/>`;
+  document.getElementById('amenBar').innerHTML=svg;
+}
+
+function drawChart(eq,close){
+  const W=680,H=240,padL=42,padR=14,padT=14,padB=26;
+  const innerW=W-padL-padR, innerH=H-padT-padB;
+  const years=['N0','N1','N2','N3','N4','N5'];
+  const maxV=Math.max(1,...eq.map(Math.abs),...close);
+  const ya=v=>padT+innerH*(1-(v+maxV)/(2*maxV));
+  const zero=ya(0), bw=innerW/6*0.56, gap=innerW/6;
+  let svg='';
+  for(let g=-1;g<=1;g++){const yy=ya(g*maxV);
+    svg+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="${g===0?'#9FB0C0':'#EBF0F5'}" stroke-width="${g===0?1.2:1}"/>`;
+    svg+=`<text x="${padL-6}" y="${yy+3}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="#8A99A8">${Math.round(cvTy(g*maxV))}</text>`;}
+  eq.forEach((v,i)=>{const cx=padL+gap*i+gap/2;const top=v>=0?ya(v):zero,hgt=Math.abs(ya(v)-zero);const col=v>=0?'#0F7C5A':'#C0392B';
+    svg+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1,hgt).toFixed(1)}" rx="2.5" fill="${col}"/>`;
+    svg+=`<text x="${cx.toFixed(1)}" y="${(v>=0?top-4:top+hgt+11).toFixed(1)}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" font-weight="600" fill="${col}">${v>=0?'+':''}${cvTy(v).toFixed(0)}</text>`;
+    svg+=`<text x="${cx.toFixed(1)}" y="${H-8}" text-anchor="middle" font-family="Inter" font-size="10" fill="#5A6B7B">${years[i]}</text>`;});
+  const pts=close.map((v,i)=>{const cx=padL+gap*i+gap/2;return `${cx.toFixed(1)},${ya(v).toFixed(1)}`;}).join(' ');
+  svg+=`<polyline points="${pts}" fill="none" stroke="#B7791F" stroke-width="1.6" stroke-dasharray="3 3" opacity="0.85"/>`;
+  close.forEach((v,i)=>{const cx=padL+gap*i+gap/2;svg+=`<circle cx="${cx.toFixed(1)}" cy="${ya(v).toFixed(1)}" r="2.3" fill="#B7791F"/>`;});
+  document.getElementById('chart').innerHTML=svg;
+}
+
+const CFIN=[['ban','Bán nhà (NOXH+TM)','#0F7C5A'],['noi','NOI + vốn hoá','#2563EB'],['draw','Giải ngân vay','#94A3B8']];
+const CFOUT=[['xay','Xây + hạ tầng','#C0392B'],['dat','Đất + SDĐ + khác','#D6A93B'],['trano','Trả nợ vay','#64748B']];
+function cfBuckets(cf){const Y=[0,1,2,3,4,5];return {
+  ban:Y.map(y=>cf.saleN[y]+cf.saleA[y]), noi:Y.map(y=>cf.noi[y]+cf.term[y]), draw:cf.draw,
+  xay:Y.map(y=>cf.oCon[y]+cf.oInf[y]), dat:Y.map(y=>cf.oLand[y]+cf.oSdd[y]+cf.oSoft[y]+cf.oCont[y]+cf.oSales[y]), trano:cf.repay};}
+function drawCF(cf){
+  const b=cfBuckets(cf), eq=cf.eq;
+  const W=680,H=280,padL=44,padR=12,padT=14,padB=26, innerW=W-padL-padR, innerH=H-padT-padB;
+  const Y=[0,1,2,3,4,5], years=['N0','N1','N2','N3','N4','N5'];
+  let maxUp=0,maxDn=0;
+  Y.forEach(y=>{let u=0,d=0;CFIN.forEach(s=>u+=b[s[0]][y]);CFOUT.forEach(s=>d+=b[s[0]][y]);maxUp=Math.max(maxUp,u);maxDn=Math.max(maxDn,d);});
+  const mag=Math.max(1,maxUp,maxDn), ya=v=>padT+innerH*(1-(v+mag)/(2*mag)), bw=innerW/6*0.62, gap=innerW/6;
+  let svg='';
+  for(let g=-1;g<=1;g++){const yy=ya(g*mag);
+    svg+=`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="${g===0?'#9FB0C0':'#EBF0F5'}" stroke-width="${g===0?1.2:1}"/>`;
+    svg+=`<text x="${padL-6}" y="${yy+3}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="#8A99A8">${Math.round(cvTy(g*mag))}</text>`;}
+  Y.forEach((y,i)=>{const cx=padL+gap*i+gap/2; let acc=0;
+    CFIN.forEach(s=>{const val=b[s[0]][y]; if(val>0.05){const y1=ya(acc+val),h=ya(acc)-ya(acc+val); svg+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y1.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0.5,h).toFixed(1)}" rx="1.5" fill="${s[2]}"/>`; acc+=val;}});
+    const upTot=acc; acc=0;
+    CFOUT.forEach(s=>{const val=b[s[0]][y]; if(val>0.05){const y1=ya(-acc),h=ya(-acc)-ya(-acc-val); svg+=`<rect x="${(cx-bw/2).toFixed(1)}" y="${y1.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0.5,h).toFixed(1)}" rx="1.5" fill="${s[2]}"/>`; acc+=val;}});
+    if(upTot>0.05) svg+=`<text x="${cx.toFixed(1)}" y="${(ya(upTot)-3).toFixed(1)}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="600" fill="#0B5E44">${cvTy(upTot).toFixed(0)}</text>`;
+    if(acc>0.05) svg+=`<text x="${cx.toFixed(1)}" y="${(ya(-acc)+11).toFixed(1)}" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="600" fill="#9A2A1C">${cvTy(acc).toFixed(0)}</text>`;
+    const ny=ya(eq[y]); svg+=`<polygon points="${cx},${(ny-5).toFixed(1)} ${(cx+5).toFixed(1)},${ny.toFixed(1)} ${cx},${(ny+5).toFixed(1)} ${(cx-5).toFixed(1)},${ny.toFixed(1)}" fill="#0E1B2A" stroke="#fff" stroke-width="1"/>`;
+    svg+=`<text x="${cx.toFixed(1)}" y="${H-8}" text-anchor="middle" font-family="Inter" font-size="10" fill="#5A6B7B">${years[i]}</text>`;});
+  document.getElementById('cfchart').innerHTML=svg;
+  document.getElementById('cfleg').innerHTML=CFIN.concat(CFOUT).map(s=>`<span><i style="background:${s[2]}"></i>${t(s[1])}</span>`).join('')
+    +`<span><i style="background:#0E1B2A;transform:rotate(45deg)"></i>${t('Ròng vốn chủ')}</span>`;
+}
+const TIN=[['Bán NOXH','saleN'],['Bán nhà ở TM','saleA'],['NOI thuê + đỗ xe','noi'],['Vốn hoá REIT/IPO','term'],['Giải ngân vay','draw']];
+const TOUT=[['Đất','oLand'],['Tiền sử dụng đất','oSdd'],['Xây dựng','oCon'],['Hạ tầng','oInf'],['Thiết kế + pháp lý','oSoft'],['Dự phòng','oCont'],['Chi phí bán','oSales'],['Trả nợ vay','repay']];
+function drawTable(cf){
+  const Y=[0,1,2,3,4,5];
+  const fmt=v=>Math.abs(v)<0.05?'·':cvTy(v).toLocaleString(LOCALE,{maximumFractionDigits:dTy});
+  const cell=(v,cls='')=>`<td class="${cls}">${fmt(v)}</td>`;
+  const rs=k=>cf[k].reduce((a,b)=>a+b,0);
+  let h='<table class="cft"><thead><tr><th>'+(USD?'US$M':'Tỷ VND')+'</th>'+Y.map(y=>`<th>${LANG==="en"?'Y':'N'}${y}</th>`).join('')+'<th>'+t('Tổng')+'</th></tr></thead><tbody>';
+  h+='<tr class="sec in"><td colspan="8">'+t('▲ THU')+'</td></tr>';
+  TIN.forEach(r=>{h+='<tr><td>'+t(r[0])+'</td>'+Y.map(y=>cell(cf[r[1]][y])).join('')+cell(rs(r[1]),'tot')+'</tr>';});
+  const tin=Y.map(y=>TIN.reduce((a,r)=>a+cf[r[1]][y],0));
+  h+='<tr class="subt"><td>'+t('Tổng thu')+'</td>'+tin.map(v=>cell(v)).join('')+cell(tin.reduce((a,b)=>a+b,0),'tot')+'</tr>';
+  h+='<tr class="sec out"><td colspan="8">'+t('▼ CHI')+'</td></tr>';
+  TOUT.forEach(r=>{h+='<tr><td>'+t(r[0])+'</td>'+Y.map(y=>cell(cf[r[1]][y])).join('')+cell(rs(r[1]),'tot')+'</tr>';});
+  const tout=Y.map(y=>TOUT.reduce((a,r)=>a+cf[r[1]][y],0));
+  h+='<tr class="subt"><td>'+t('Tổng chi')+'</td>'+tout.map(v=>cell(v)).join('')+cell(tout.reduce((a,b)=>a+b,0),'tot')+'</tr>';
+  h+='<tr class="netr"><td>'+t('Dòng tiền vốn chủ ròng')+'</td>'+cf.eq.map(v=>cell(v)).join('')+cell(cf.eq.reduce((a,b)=>a+b,0),'tot')+'</tr>';
+  h+='<tr class="cumr"><td>'+t('Lũy kế vốn chủ')+'</td>'+cf.cum.map(v=>cell(v)).join('')+'<td></td></tr>';
+  h+='</tbody></table>';
+  document.getElementById('cftable').innerHTML=h;
+}
+function renderBreakdown(r){
+  const T=v=>cvTy(v).toLocaleString(LOCALE,{maximumFractionDigits:dTy});
+  const Pc=v=>(v*100).toFixed(1).replace('.',DECSEP)+'%';
+  document.getElementById('bd_rn').textContent=T(r.revNoxh);
+  document.getElementById('bd_cn').textContent=T(r.costN);
+  document.getElementById('bd_pn').textContent=T(r.profitN);
+  document.getElementById('bd_mn').textContent=Pc(r.marginN);
+  document.getElementById('bd_rc').textContent=T(r.revCom);
+  document.getElementById('bd_cc').textContent=T(r.cCom);
+  document.getElementById('bd_pc').textContent=T(r.profitCom);
+  document.getElementById('bd_mc').textContent=Pc(r.marginCom);
+  document.getElementById('bdcap').textContent=capOn?t('(trần 10%)'):'';
+}
+
+function buildSliders(){
+  const root=document.getElementById('sliders'); root.innerHTML='';
+  GROUPS.forEach((g,gi)=>{
+    const blk=document.createElement('div'); blk.className='gblock';
+    blk.innerHTML=`<div class="gh">${t(g.h)}</div><div class="gnote">${t(g.note)}</div>`;
+    if(g.h.indexOf('Đỗ xe')===0) blk.innerHTML+=`<div class="autoline">${t('NOXH đỗ xe máy tự tính theo QCVN (60% NOXH, tối thiểu 6 m²/căn), miễn phí. Số chỗ ô tô khối TM:')} <b id="auto_car">–</b>.</div>`;
+    g.items.forEach(it=>{
+      const tag=it.k==='pNoxh'?`<span class="tag" id="tag_pNoxh" style="display:none">${t('↓ trần')}</span>`:'';
+      const d=document.createElement('div'); d.className='sgroup'; d.id='grp_'+it.k;
+      d.innerHTML=`<div class="slabel"><span class="nm">${t(it.name)}${tag}</span><span class="vl"><b id="vl_${it.k}"></b> ${sUnit(it)}</span></div>
+        <input type="range" id="sl_${it.k}" min="${it.min}" max="${it.max}" step="${it.step}" value="${S[it.k]}" aria-label="${it.name}">
+        <div class="ticks"><span>${sTick(it,it.min)}</span><span>${sTick(it,it.max)}</span></div>`;
+      blk.appendChild(d);
+      const sl=d.querySelector('input'), vl=d.querySelector('#vl_'+it.k);
+      vl.textContent=sVal(it,+sl.value);
+      sl.addEventListener('input',()=>{S[it.k]=+sl.value;vl.textContent=sVal(it,+sl.value);render();});
+    });
+    if(gi<GROUPS.length-1) blk.insertAdjacentHTML('beforeend','<div class="divider"></div>');
+    root.appendChild(blk);
+  });
+}
+document.getElementById('capOn').addEventListener('change',e=>{capOn=e.target.checked;render();});
+document.getElementById('print').addEventListener('click',()=>window.print());
+document.getElementById('reset').addEventListener('click',()=>{
+  S={...DEF}; capOn=false; lastCapPrice=null; document.getElementById('capOn').checked=false;
+  GROUPS.forEach(g=>g.items.forEach(it=>{const sl=document.getElementById('sl_'+it.k);sl.disabled=false;sl.value=S[it.k];document.getElementById('vl_'+it.k).textContent=sVal(it,+S[it.k]);}));
+  const c=document.getElementById('controls'); c.classList.add('flash'); setTimeout(()=>c.classList.remove('flash'),500);
+  render();
+});
+window.addEventListener('beforeprint',()=>document.querySelectorAll('details').forEach(d=>{d.dataset.wasopen=d.open?'1':'0';d.open=true;}));
+window.addEventListener('afterprint',()=>document.querySelectorAll('details').forEach(d=>{if(d.dataset.wasopen==='0')d.open=false;}));
+
+function applyLang(){
+  DECSEP = LANG==='vi'?',':'.'; LOCALE = I18N_LOC[LANG]; USD = (LANG==='en');
+  document.documentElement.lang = LANG;
+  document.title = LANG==='vi'?'AnHome · Mô phỏng đầu tư dự án (v5)':'AnHome · Project Investment Simulator (v5)';
+  document.body.setAttribute('data-l',LANG);
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.getAttribute('data-t'); if(H[k]) el.innerHTML=H[k][LANG];});
+  const _lb=document.getElementById('lang'); if(_lb) _lb.textContent = LANG==='vi'?'🌐 EN':'🌐 VI';
+  buildSliders(); render();
+  const _a=document.getElementById('auto_car'); if(_a)_a.textContent=fmtN(compute(S,capOn).carLots)+' '+t('chỗ');
+}
+document.getElementById('lang').addEventListener('click',()=>{LANG = LANG==='vi'?'en':'vi'; applyLang();});
+function saveState(){
+  const data={app:'AnHome',v:5,ts:new Date().toISOString(),lang:LANG,capOn:capOn,ptitle:document.getElementById('ptitle').textContent,S:S};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='anhome_'+new Date().toISOString().slice(0,10)+'.json'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function loadState(file){
+  const rd=new FileReader();
+  rd.onload=()=>{ try{
+    const d=JSON.parse(rd.result);
+    if(d.S){ for(const k in DEF){ if(k in d.S) S[k]=d.S[k]; } }
+    if('capOn' in d){ capOn=!!d.capOn; const cb=document.getElementById('capOn'); if(cb) cb.checked=capOn; }
+    if(d.ptitle){ document.getElementById('ptitle').textContent=d.ptitle; }
+    if(d.lang==='vi'||d.lang==='en'){ LANG=d.lang; }
+    applyLang();
+  }catch(e){ alert(LANG==='vi'?'File không hợp lệ.':'Invalid file.'); } };
+  rd.readAsText(file);
+}
+document.getElementById('save').addEventListener('click',saveState);
+document.getElementById('open').addEventListener('click',()=>document.getElementById('openFile').click());
+document.getElementById('openFile').addEventListener('change',e=>{ if(e.target.files[0]) loadState(e.target.files[0]); e.target.value=''; });
+
+applyLang();
+// fill auto car count after first render
+(function(){const r=compute(S,capOn);const a=document.getElementById('auto_car');if(a)a.textContent=fmtN(r.carLots)+' '+t('chỗ');})();
+</script>
+</body>
+</html>
